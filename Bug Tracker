@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #eef1f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form input, form select, form button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #0056b3;
+        }
+        .bug-list {
+            margin-top: 20px;
+        }
+        .bug {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .bug header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .bug p {
+            margin: 5px 0;
+        }
+        .bug .actions button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .bug .actions .resolve {
+            background-color: #28a745;
+            color: white;
+        }
+        .bug .actions .resolve:hover {
+            background-color: #218838;
+        }
+        .bug .actions .delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .bug .actions .delete:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bug Tracker</h1>
+
+        <form id="bugForm">
+            <input type="text" id="title" placeholder="Bug Title" required>
+            <textarea id="description" placeholder="Bug Description" rows="4" required></textarea>
+            <select id="priority" required>
+                <option value="">Select Priority</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+            <button type="submit">Add Bug</button>
+        </form>
+
+        <div class="bug-list" id="bugList">
+            <h2>Reported Bugs</h2>
+        </div>
+    </div>
+
+    <script>
+        let bugs = JSON.parse(localStorage.getItem('bugs')) || [];
+
+        function displayBugs() {
+            const bugList = document.getElementById('bugList');
+            bugList.innerHTML = '<h2>Reported Bugs</h2>';
+
+            bugs.forEach((bug, index) => {
+                const bugDiv = document.createElement('div');
+                bugDiv.classList.add('bug');
+                bugDiv.innerHTML = `
+                    <header>${bug.title} - <span>${bug.priority}</span></header>
+                    <p>${bug.description}</p>
+                    <footer>
+                        <div class="actions">
+                            <button class="resolve" onclick="resolveBug(${index})">${bug.resolved ? 'Resolved' : 'Resolve'}</button>
+                            <button class="delete" onclick="deleteBug(${index})">Delete</button>
+                        </div>
+                    </footer>
+                `;
+                bugList.appendChild(bugDiv);
+            });
+        }
+
+        function addBug(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const priority = document.getElementById('priority').value;
+
+            bugs.push({ title, description, priority, resolved: false });
+            localStorage.setItem('bugs', JSON.stringify(bugs));
+            displayBugs();
+
+            document.getElementById('bugForm').reset();
+        }
+
+        function resolveBug(index) {
+            bugs[index].resolved = true;
+            localStorage.setItem('bugs', JSON.stringify(bugs));
+            displayBugs();
+        }
+
+        function deleteBug(index) {
+            bugs.splice(index, 1);
+            localStorage.setItem('bugs', JSON.stringify(bugs));
+            displayBugs();
+        }
+
+        document.getElementById('bugForm').addEventListener('submit', addBug);
+        displayBugs();
+    </script>
+</body>
+</html>
